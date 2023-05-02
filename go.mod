@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/container-storage-interface/spec v1.7.0
-	golang.org/x/net v0.6.0
+	golang.org/x/net v0.7.0
 	google.golang.org/grpc v1.53.0
 	k8s.io/klog v1.0.0
 	k8s.io/mount-utils v0.26.1
