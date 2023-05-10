@@ -32,4 +32,4 @@ constant in [`pkg/ramdisk/identity.go`](pkg/ramdisk/identity.go)).
   
 The driver is deployed as a `DaemonSet`. There is no clsuter-wide controller pod, all CSI
 ephemeral volume processing is done by the node-local `DaemonSet`. Note that the driver
-pods on nodes, like all CSI driver, runs as privileged.
+pods on nodes, like all CSI drivers, runs as privileged.
