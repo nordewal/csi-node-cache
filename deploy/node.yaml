@@ -55,8 +55,8 @@ spec:
           securityContext:
             privileged: true
           volumeMounts:
-            - name: kubelet-dir
-              mountPath: /var/lib/kubelet
+            - name: kubelet-pods-dir
+              mountPath: /var/lib/kubelet/pods
               mountPropagation: "Bidirectional"
             - name: plugin-dir
               mountPath: /csi
@@ -73,9 +73,9 @@ spec:
           hostPath:
             path: /var/lib/kubelet/plugins_registry/
             type: Directory
-        - name: kubelet-dir
+        - name: kubelet-pods-dir
           hostPath:
-            path: /var/lib/kubelet
+            path: /var/lib/kubelet/pods
             type: Directory
         - name: plugin-dir
           hostPath:
