@@ -41,7 +41,6 @@ spec:
               mountPath: /registration
         - name: csi-ramdisk
           image: YOUR_IMAGE  # See ../README.md
-          imagePullPolicy: Always
           args:
             - "--v=5"
             - "--endpoint=unix:/csi/csi.sock"
