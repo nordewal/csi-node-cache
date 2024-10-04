@@ -1,0 +1,48 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+kind: Pod
+apiVersion: v1
+metadata:
+  name: wi-test
+  namespace: node-cache
+spec:
+  terminationGracePeriodSeconds: 1
+  serviceAccountName: node-cache-controller
+  nodeSelector:
+    iam.gke.io/gke-metadata-server-enabled: "true"
+  containers:
+  - name: debian
+    image: debian
+    command:
+    - bash
+    - -c
+    - |
+      # Install curl & gcloud
+      apt update && apt install -y curl python3
+      curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz
+      tar xf google-cloud-cli-linux-x86_64.tar.gz      
+      ./google-cloud-sdk/install.sh --quiet --path-update=true
+      . /google-cloud-sdk/path.bash.inc
+
+      # The output from this in the pod logs should include ${YOUR-PROJECT}.svc.id.goog.
+      echo querying service accounts from metadata server
+      curl -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/
+
+      # The output from this should also be ${YOUR-PROJECT}.svc.id.goog.
+      echo querying service accounts from gcloud
+      gcloud config get account
+
+      # This pod will sleep to allow you to login and test things out.
+      sleep 3600

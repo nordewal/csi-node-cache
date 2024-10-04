@@ -1,0 +1,119 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  # Must match kustomization.yaml.
+  name: node-cache
+---
+apiVersion: storage.k8s.io/v1
+kind: CSIDriver
+metadata:
+  name: node-cache.csi.storage.gke.io
+spec:
+  attachRequired: false
+  podInfoOnMount: true
+  volumeLifecycleModes:
+  - Ephemeral
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: node-cache-driver
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: node-cache-driver-role
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: node-cache-driver-role-binding
+subjects:
+  - kind: ServiceAccount
+    name: node-cache-driver
+roleRef:
+  kind: Role
+  name: node-cache-driver-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: node-cache-controller
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: node-cache-controller-cluster-role
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "create", "update", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: node-cache-controller-role-binding
+subjects:
+  - kind: ServiceAccount
+    name: node-cache-controller
+roleRef:
+  kind: ClusterRole
+  name: node-cache-controller-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: node-cache-controller-role
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch", "create", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: node-cache-controller-role-binding
+subjects:
+  - kind: ServiceAccount
+    name: node-cache-controller
+roleRef:
+  kind: Role
+  name: node-cache-controller-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: node-cache-volumes
+allowVolumeExpansion: true
+parameters:
+  type: pd-balanced
+provisioner: pd.csi.storage.gke.io
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
