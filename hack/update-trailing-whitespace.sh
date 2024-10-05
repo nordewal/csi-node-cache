@@ -23,6 +23,6 @@ echo "Removing trailing whitespace..."
 for f in $(git ls-files | grep -v ^vendor/); do
   if grep -q " $" "${f}"; then
     echo fixing $f
-    sed -i 's/ $//' "${f}"
+    sed -i 's/  *$//' "${f}"
   fi
 done

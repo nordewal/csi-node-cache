@@ -131,11 +131,21 @@ func runOnPod(ctx context.Context, t *testing.T, pod *corev1.Pod, cmd string, ar
 
 func runOnNode(ctx context.Context, t *testing.T, node, cmd string, args ...string) (string, error) {
 	t.Helper()
-	// TODO: this assumes running from a cloudtop.
+	zone := nodeZone(ctx, node)
 	cmd = fmt.Sprintf("--command=sudo %s %s", cmd, strings.Join(args, " "))
-	output, err := util.RunCommand("gcloud", "compute", "ssh", node, cmd, "--", "-o", "ProxyCommand=corp-ssh-helper %h %p")
-	t.Logf("on %s ran %s %s: %s", node, cmd, strings.Join(args, " "), string(output))
-	return string(output), err
+	var cmdOutput string
+	// gcloud compute ssh can be flaky if a proxy is used, so we retry a couple of times.
+	err := wait.PollUntilContextTimeout(ctx, time.Second, time.Minute, true, func(ctx context.Context) (bool, error) {
+		output, err := util.RunCommand("gcloud", "compute", "ssh", "--zone", zone, node, cmd)
+		cmdOutput = string(output)
+		t.Logf("on %s ran %s %s: %s", node, cmd, strings.Join(args, " "), string(output))
+		if err != nil && strings.HasPrefix(cmdOutput, "RPC AclTests failed") {
+			t.Logf("proxy error, retrying")
+			return false, nil
+		}
+		return true, err
+	})
+	return cmdOutput, err
 }
 
 func startCachePod(ctx context.Context, t *testing.T, name, cacheType string) *corev1.Pod {

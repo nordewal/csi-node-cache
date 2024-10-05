@@ -21,8 +21,7 @@ metadata:
 spec:
   terminationGracePeriodSeconds: 1
   nodeSelector:
-    node-cache.gke.io: pd
-    kubernetes.io/hostname: gke-rapid-default-23e09da4-9r9k
+    node-cache.gke.io: tmpfs
   containers:
   - name: debian
     image: debian

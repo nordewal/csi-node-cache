@@ -28,6 +28,13 @@ spec:
       serviceAccountName: node-cache-driver
       nodeSelector:
         kubernetes.io/os: linux
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-cache.gke.io
+                operator: Exists
       containers:
         - name: registrar
           image: gke.gcr.io/csi-node-driver-registrar:v2.9.4-gke.3@sha256:e9ff64a44314d49168ec5fae8ab98d75b4bd5aae00e03faf5b0d5ef94cb72a83

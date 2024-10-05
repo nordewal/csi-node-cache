@@ -52,7 +52,7 @@ Appropriately label nodes where you want a cache to be used.
 The label key is `node-cache.gke.io`. Values may be:
 
 * **tmpfs**. This creates a ramdisk that persists across pod restarts. The label
-  `node-cache-size-mib.gke.io` must also be on the node, which sets the size of
+  `node-cache-size.gke.io` must also be on the node, which sets the size of
   this disk in MiB.
 
   The memory accounting for this ramdisk is a little confusing -- it appears

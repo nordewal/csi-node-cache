@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
 
@@ -159,18 +158,7 @@ func getVolumeTypeFromNode(node *corev1.Node) (volumeTypeInfo, error) {
 		return volumeTypeInfo{}, fmt.Errorf("%s label not found on node %s", common.VolumeTypeLabel, node.GetName())
 	}
 	vti := volumeTypeInfo{VolumeType: volumeType}
-	szStr, foundMiB := labels[common.SizeMiBLabel]
-	if foundMiB {
-		sz, err := strconv.ParseInt(szStr, 10, 32)
-		if err != nil {
-			return volumeTypeInfo{}, fmt.Errorf("bad MiB size in label %s=%s on %s", common.SizeMiBLabel, szStr, node.GetName())
-		}
-		vti.Size = resource.MustParse(fmt.Sprintf("%dMi", sz))
-	}
-	szStr, found = labels[common.SizeLabel]
-	if foundMiB && found {
-		return volumeTypeInfo{}, fmt.Errorf("found both %s and %s labels on %s", common.SizeMiBLabel, common.SizeLabel, node.GetName())
-	}
+	szStr, found := labels[common.SizeLabel]
 	if found {
 		q, err := resource.ParseQuantity(szStr)
 		if err != nil {

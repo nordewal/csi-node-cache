@@ -28,6 +28,9 @@ import (
 func listFilesOnNode(ctx context.Context, t *testing.T, node, glob string) []string {
 	output, err := runOnNode(ctx, t, node, "bash", "-c", fmt.Sprintf("\"ls %s\"", glob))
 	if err != nil {
+		if strings.Contains(err.Error(), "No such file or directory") {
+			return []string{}
+		}
 		t.Fatalf("bad ls %s on %s: %v", glob, node, err)
 	}
 	files := []string{}
@@ -51,6 +54,7 @@ func initializeRaidNodes(ctx context.Context, t *testing.T) {
 	if err != nil {
 		t.Fatalf("can't list nodes for initializing raid: %v", err)
 	}
+	t.Log("Initializing raid. Any errors that follow are benign if raid has not yet been set up on the node.")
 	for _, node := range nodes.Items {
 		if kind, found := node.GetLabels()[common.VolumeTypeLabel]; !found || kind != "lssd" {
 			continue
@@ -65,6 +69,7 @@ func initializeRaidNodes(ctx context.Context, t *testing.T) {
 			runOnNode(ctx, t, node.GetName(), "mdadm", "--zero-superblock", f)
 		}
 	}
+	t.Log("Raid setup done, errors may matter now")
 }
 
 func TestLssdRaidSetup(t *testing.T) {

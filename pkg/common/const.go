@@ -16,7 +16,6 @@ package common
 
 const (
 	VolumeTypeLabel = "node-cache.gke.io"
-	SizeMiBLabel    = "node-cache-size-mib.gke.io"
 	SizeLabel       = "node-cache-size.gke.io"
 )
 

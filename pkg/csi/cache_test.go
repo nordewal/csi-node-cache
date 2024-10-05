@@ -170,23 +170,23 @@ func TestGetVolumeTypeFromNode(t *testing.T) {
 		{
 			name: "size",
 			labels: map[string]string{
-				"node-cache.gke.io":          "foo",
-				"node-cache-size-mib.gke.io": "10",
+				"node-cache.gke.io":      "foo",
+				"node-cache-size.gke.io": "10Mi",
 			},
 			expected: volumeTypeInfo{VolumeType: "foo", Size: resource.MustParse("10Mi")},
 		},
 		{
 			name: "bad size",
 			labels: map[string]string{
-				"node-cache.gke.io":          "foo",
-				"node-cache-size-mib.gke.io": "ten",
+				"node-cache.gke.io":      "foo",
+				"node-cache-size.gke.io": "ten",
 			},
-			expectedError: "bad MiB size",
+			expectedError: "bad size label",
 		},
 		{
 			name: "only size",
 			labels: map[string]string{
-				"node-cache-size-mib.gke.io": "10",
+				"node-cache-size.gke.io": "10Mi",
 			},
 			expectedError: "not found",
 		},
