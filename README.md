@@ -45,6 +45,11 @@ The difference between `-k`- and `-f` is significant, be careful --- `kubectl
 apply -f` will fail and leave your cluster in a broken state. If you
 accidentally do this, delete the `node-cache` namespace and retry.
 
+Note that the deployment ensures the controller runs on a node with workload
+identity, in case  the PD cache is used. If you will not be using the PD cache
+and you don't want to set up workload identity for your cluster, you can remove
+the controller node selector.
+
 ## Use
 
 Appropriately label nodes where you want a cache to be used.
@@ -63,9 +68,9 @@ The label key is `node-cache.gke.io`. Values may be:
   restarts. The node should be created with `--local-nvme-ssd-block` flag. All
   local ssd cards will be used for the cache.
 
-* **pd**. A persistent disk will be created. `node-cache-size.gke.io` must be
-  set (it uses standard k8s parsing, eg 50Gi). See **PD Caches** below for more
-  details.
+* **pd**. A persistent disk will be created for the
+  cache. `node-cache-size.gke.io` must be set (it uses standard k8s parsing, eg
+  50Gi). See **PD Caches** below for more details.
 
 See `examples/example-pod.yaml` for a simple example. The pod should have a node
 selector for the nodes that have been set up with the desired kind of node
@@ -87,6 +92,12 @@ immediately deleted so that it cannot be used with a pod. The finalizer will
 keep the volume from being reclaimed. The controller will then manually attach
 the volume to the node. There is no detach operation. The controller will delete
 such PVCs when there is no corresponding node (by removing the finalizer).
+
+The PVC is created for any node labeled with `node-cache.gke.io=pd`, whether or
+not there is a pod using the cache on that node.
+
+The node must also hvae the `node-cache-size.gke.io` label set in order to
+create a volume. Pods will be stuck pending until this is done.
 
 The controller service account must be linked to a GCP service account through
 workload identity. This SA needs a role with compute.instances.attachDisk IAM
