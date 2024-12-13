@@ -166,7 +166,8 @@ func assembleExistingMirror(target, existing string, devices ...string) error {
 }
 
 func createNewStriped(target string, devices ...string) error {
-	output, err := runMdadm(slices.Concat([]string{"--create", target, "--level", "0", "--run", "--raid-devices", fmt.Sprintf("%d", len(devices))}, devices)...)
+	// Force is needed if the number of devices is 1.
+	output, err := runMdadm(slices.Concat([]string{"--create", target, "--force", "--level", "0", "--run", "--raid-devices", fmt.Sprintf("%d", len(devices))}, devices)...)
 	if err != nil {
 		return fmt.Errorf("Striped raid creation for %s={%v} failed (%w): %s", target, devices, err, output)
 	}

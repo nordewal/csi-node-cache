@@ -27,6 +27,10 @@ Caches](#pd-caches) for details.
 
 ## Deployment
 
+We do not host pre-built images. You will need to build your own images from
+this repository and push them to a convenient image repository reachable from
+your cluster.
+
 Run `make images PROJECT=${YOUR_PROJECT_ID} REPO=${YOUR_AR_REPO}`. This will
 build and push images to `gcr.io/${YOUR_PROJECT_ID}`. The image names and tags
 can be customized with `TAG`, `DRIVER_IMAGE_NAME` and
