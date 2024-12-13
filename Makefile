@@ -1,7 +1,7 @@
 .PHONY: all verify build-and-push setup-kustomize images
 .PHONY: unit-test
 
-TAG=v1.1.0-rc3
+TAG=v1.1.0
 BUILD_ARGS=
 
 DRIVER_IMAGE_NAME=csi-node-cache-driver
