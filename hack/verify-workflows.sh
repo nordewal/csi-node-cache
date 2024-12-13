@@ -13,15 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 set -o errexit
 set -o nounset
 set -o pipefail
 
-PKG_ROOT=$(git rev-parse --show-toplevel)
+cd $(git rev-parse --show-toplevel)
 
-"${PKG_ROOT}"/hack/verify-workflows.sh
-"${PKG_ROOT}"/hack/verify-gofmt.sh
-"${PKG_ROOT}"/hack/verify-trailing-whitespace.sh
-"${PKG_ROOT}"/hack/verify-govet.sh
-"${PKG_ROOT}"/hack/verify-gomod.sh
+echo "Verifying workflows..."
+
+mod_version=$(grep ^go go.mod | sed -E 's/^go ([0-9]\.[0-9]+).*/\1/')
+
+workflow_dir=.github/workflows
+bad_versions=$(grep -H go-version ${workflow_dir}/*.yaml | grep -v "go-version: $mod_version" || true)
+
+if [ -n "${bad_versions}" ] ; then
+  echo "bad version: ${bad_versions}"
+  exit 1
+fi
+
+echo "No issue found."
