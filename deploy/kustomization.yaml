@@ -19,5 +19,3 @@ resources:
 - ./controller.yaml
 - ./driver.yaml
 - ./cluster.yaml
-transformers:
-- ./images.yaml

@@ -42,6 +42,7 @@ setup-kustomize:
 	 | sed "s|CONTROLLER_IMAGE_NAME|$(REPO_HOST)/$(PROJECT_REPO)/$(CONTROLLER_IMAGE_NAME)|" \
    | sed "s|IMAGE_TAG|$(TAG)|" \
    > deploy/images.yaml
+	echo -e 'transformers:\n  - ./images.yaml' > deploy/kustomization.yaml
 
 images: setup-kustomize
 	$(MAKE) IMAGE=$(DRIVER_IMAGE_NAME) BUILD_ARGS="--build-arg VERSION=$(TAG)" DOCKERFILE=cmd/driver/Dockerfile build-and-push
